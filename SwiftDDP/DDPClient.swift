@@ -241,6 +241,7 @@ open class DDPClient: NSObject {
         socket = WebSocket(url: socketUrl)
         socket.delegate = self
         socket.pongDelegate = self
+        socket.connect()
     }
     
     fileprivate func ping() {
