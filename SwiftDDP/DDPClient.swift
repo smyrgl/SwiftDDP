@@ -27,10 +27,11 @@
 //
 
 import Foundation
-import SwiftWebSocket
-import XCGLogger
+import Starscream
+import SwiftyBeaver
 
-let log = XCGLogger(identifier: "DDP")
+
+let log = SwiftyBeaver.self
 
 public typealias DDPMethodCallback = (_ result:Any?, _ error:DDPError?) -> ()
 public typealias DDPConnectedCallback = (_ session:String) -> ()
@@ -44,6 +45,67 @@ public typealias DDPCallback = () -> ()
 public protocol SwiftDDPDelegate {
     func ddpUserDidLogin(_ user:String)
     func ddpUserDidLogout(_ user:String)
+}
+
+extension DDPClient: WebSocketDelegate {
+    
+    public func websocketDidConnect(socket: WebSocket) {
+        self.heartbeat.addOperation() { [weak self] in
+            // Add a subscription to loginServices to each connection event
+            let callbackWithServiceConfiguration = { (session:String) in
+                guard let strongSelf = self else { return }
+                // let loginServicesSubscriptionCollection = "meteor_accounts_loginServiceConfiguration"
+                let loginServiceConfiguration = "meteor.loginServiceConfiguration"
+                strongSelf.sub(loginServiceConfiguration, params: nil)           // /tools/meteor-services/auth.js line 922
+                
+                
+                // Resubscribe to existing subs on connection to ensure continuity
+                strongSelf.subscriptions.forEach({ (subscription: (String, (id: String, name: String, ready: Bool))) -> () in
+                    if subscription.1.name != loginServiceConfiguration {
+                        strongSelf.sub(subscription.1.id, name: subscription.1.name, params: nil, callback: nil)
+                    }
+                })
+                strongSelf.connectedCallback?(session)
+            }
+            guard let strongSelf = self else { return }
+            var completion = Completion(connectedCallback: callbackWithServiceConfiguration)
+            //Reset the backoff to original values
+            strongSelf.backOff.reset()
+            completion.executionQueue = strongSelf.executionQueue
+            strongSelf.events.onConnected = completion
+            strongSelf.sendMessage(["msg":"connect", "version":"1", "support":["1"]])
+        }
+    }
+    
+    public func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
+        log.warning("Socket connection closed with error: \(String(describing: error))")
+        self.backOff.createBackoff({ [weak self] in
+            self?.socket.connect()
+            self?.ping()
+        })
+    }
+    
+    public func websocketDidReceiveMessage(socket: WebSocket, text: String) {
+        self.background.addOperation() { [weak self] in
+            do { try self?.ddpMessageHandler(DDPMessage(message: text)) }
+            catch { log.debug("Message handling error. Raw message: \(text)")}
+        }
+    }
+    
+    public func websocketDidReceiveData(socket: WebSocket, data: Data) {
+        guard let text = String(data: data, encoding: .utf8) else { log.warning("Could not decode data received: \(data)"); return }
+        self.background.addOperation() { [weak self] in
+            do { try self?.ddpMessageHandler(DDPMessage(message: text)) }
+            catch { log.debug("Message handling error. Raw message: \(text)")}
+        }
+    }
+
+}
+
+extension DDPClient: WebSocketPongDelegate {
+    public func websocketDidReceivePong(socket: WebSocket, data: Data?) {
+         heartbeat.addOperation() { self.server.pong = Date() }
+    }
 }
 
 /**
@@ -104,8 +166,13 @@ open class DDPClient: NSObject {
         return queue
     }()
     
+    var executionQueue: OperationQueue?
+    var connectedCallback: DDPConnectedCallback?
+    
+    let backOff = DDPExponentialBackoff()
+    
     fileprivate var socket:WebSocket!{
-        didSet{ socket.allowSelfSignedSSL = self.allowSelfSignedSSL }
+        didSet{ socket.disableSSLCertValidation = self.allowSelfSignedSSL }
     }
 
     fileprivate var server:(ping:Date?, pong:Date?) = (nil, nil)
@@ -132,18 +199,7 @@ open class DDPClient: NSObject {
     open var allowSelfSignedSSL:Bool = false {
         didSet{
             guard let currentSocket = socket else { return }
-            currentSocket.allowSelfSignedSSL = allowSelfSignedSSL
-        }
-    }
-    
-    /**
-    Sets the log level. The default value is .None.
-    Possible values: .Verbose, .Debug, .Info, .Warning, .Error, .Severe, .None
-    */
-    
-    open var logLevel = XCGLogger.Level.none {
-        didSet {
-            log.setup(level: logLevel, showLogIdentifier: true, showFunctionName: true, showThreadName: true, showLevel: true, showFileNames: false, showLineNumbers: true, showDate: false, writeToFile: nil, fileLevel: .none)
+            currentSocket.disableSSLCertValidation = allowSelfSignedSSL
         }
     }
     
@@ -179,63 +235,12 @@ open class DDPClient: NSObject {
     open func connect(_ url:String, callback:DDPConnectedCallback?) {
         self.url = url
         // capture the thread context in which the function is called
-        let executionQueue = OperationQueue.current
-        
-        socket = WebSocket(url)
-        //Create backoff
-        let backOff:DDPExponentialBackoff = DDPExponentialBackoff()
-        
-        socket.event.close = {code, reason, clean in
-            //Use backoff to slow reconnection retries
-            backOff.createBackoff({
-                log.info("Web socket connection closed with code \(code). Clean: \(clean). \(reason)")
-                let event = self.socket.event
-                self.socket = WebSocket(url)
-                self.socket.event = event
-                self.ping()
-            })
-        }
-        
-        socket.event.error = events.onWebsocketError
-        
-        socket.event.open = {
-            self.heartbeat.addOperation() {
-                
-                // Add a subscription to loginServices to each connection event
-                let callbackWithServiceConfiguration = { (session:String) in
-                    
-                    
-                    // let loginServicesSubscriptionCollection = "meteor_accounts_loginServiceConfiguration"
-                    let loginServiceConfiguration = "meteor.loginServiceConfiguration"
-                    self.sub(loginServiceConfiguration, params: nil)           // /tools/meteor-services/auth.js line 922
-                    
-                    
-                    // Resubscribe to existing subs on connection to ensure continuity
-                    self.subscriptions.forEach({ (subscription: (String, (id: String, name: String, ready: Bool))) -> () in
-                        if subscription.1.name != loginServiceConfiguration {
-                            self.sub(subscription.1.id, name: subscription.1.name, params: nil, callback: nil)
-                        }
-                    })
-                    callback?(session)
-                }
-                
-                var completion = Completion(connectedCallback: callbackWithServiceConfiguration)
-                //Reset the backoff to original values
-                backOff.reset()
-                completion.executionQueue = executionQueue
-                self.events.onConnected = completion
-                self.sendMessage(["msg":"connect", "version":"1", "support":["1"]])
-            }
-        }
-        
-        socket.event.message = { message in
-            self.background.addOperation() {
-                if let text = message as? String {
-                    do { try self.ddpMessageHandler(DDPMessage(message: text)) }
-                    catch { log.debug("Message handling error. Raw message: \(text)")}
-                }
-            }
-        }
+        self.executionQueue = OperationQueue.current
+        self.connectedCallback = callback
+        let socketUrl = URL(string: url)!
+        socket = WebSocket(url: socketUrl)
+        socket.delegate = self
+        socket.pongDelegate = self
     }
     
     fileprivate func ping() {
@@ -327,8 +332,8 @@ open class DDPClient: NSObject {
             
         case .Ping: heartbeat.addOperation() { self.pong(message) }
             
-        case .Pong: heartbeat.addOperation() { self.server.pong = Date() }
-            
+        case .Pong:
+            break
         case .Error: background.addOperation() {
             self.didReceiveErrorMessage(DDPError(json: message.json))
             }
@@ -340,7 +345,7 @@ open class DDPClient: NSObject {
     
     fileprivate func sendMessage(_ message:NSDictionary) {
         if let m = message.stringValue() {
-            self.socket.send(m)
+            self.socket.write(string: m)
         }
     }
     

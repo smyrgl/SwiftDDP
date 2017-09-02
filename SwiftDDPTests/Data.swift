@@ -17,8 +17,8 @@ class Document: MeteorDocument {
 
 //  *** methods that are tested against a server are tested against the url below ***
 
-//let url = "ws://swiftddp.meteor.com/websocket"
-let url = "ws://localhost:3000/websocket"
+let url = "ws://swiftddp.meteor.com/websocket"
+//let url = "ws://localhost:3000/websocket"
 let user = "mjgaylord@gmail.com"
 let pass = "mjgaylord123"
 

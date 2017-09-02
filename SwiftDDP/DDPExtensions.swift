@@ -124,7 +124,7 @@ extension DDPClient {
     - parameter collection: The name of the collection
     - parameter document:   An NSArray of documents to insert
     */
-    
+    @discardableResult
     public func insert(_ collection: String, document: NSArray) -> String {
         return insert(collection, document: document, callback:nil)
     }
@@ -135,7 +135,7 @@ extension DDPClient {
     - parameter collection: The name of the collection
     - parameter document:   An NSArray of documents to insert
     */
-    
+    @discardableResult
     public func insert(sync collection: String, document: NSArray) -> Result {
         
         syncWarning("Insert")
@@ -221,7 +221,7 @@ extension DDPClient {
     - parameter collection: The name of the collection
     - parameter document:   An NSArray of documents to remove
     */
-    
+    @discardableResult
     public func remove(_ collection: String, document: NSArray) -> String  {
         return remove(collection, document: document, callback:nil)
     }
@@ -232,7 +232,7 @@ extension DDPClient {
     - parameter collection: The name of the collection
     - parameter document:   An NSArray of documents to remove
     */
-    
+    @discardableResult
     public func remove(sync collection: String, document: NSArray) -> Result {
         syncWarning("Remove")
         
@@ -492,7 +492,7 @@ extension DDPClient {
                         if let completion = callback { completion() }
                     } else {
                         self.logout()
-                        log.error("\(error)")
+                        log.error("\(String(describing: error))")
                         callback?()
                     }
                     }{

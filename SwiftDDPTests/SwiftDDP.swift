@@ -195,7 +195,7 @@ class DDPServerTests:QuickSpec {
                 client.connect(url) { session in
                     print("Connected to DDP server!!! \(session)")
                     client.loginWithPassword(user, password: pass) { result, e in
-                        print("Login data: \(result), \(e)")
+                        print("Login data: \(String(describing:result)), \(String(describing:e))")
                         client.sub("test-collection2", params:nil)
                         client.insert("test-collection2", document: NSArray(arrayLiteral:["_id":_id, "foo":"bar"]))
                     }
@@ -204,7 +204,7 @@ class DDPServerTests:QuickSpec {
                 
                 // the tuple that holds the subscription data in the client should be updated to reflect that the
                 // subscription is ready
-                let subscriptionID = client.findSubscription("test-collection2")
+                _ = client.findSubscription("test-collection2")
                 expect(client.subscriptionReady("test-collection2")).toEventually(beTrue(), timeout:5)
                 
                 // test that the data is returned from the server
@@ -240,7 +240,7 @@ class DDPServerTests:QuickSpec {
                 client.connect(url) { session in
                     print("Connected to DDP server!!! \(session)")
                     client.loginWithPassword(user, password: pass) { result, e in
-                        print("Login data: \(result), \(e)")
+                        print("Login data: \(String(describing: result)), \(String(describing: e))")
                         client.sub("test-collection2", params:nil)
                         client.insert("test-collection2", document: NSArray(arrayLiteral:["_id":_id, "foo":"bar"]))
                     }
