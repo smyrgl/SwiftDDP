@@ -60,7 +60,7 @@ extension DDPClient: WebSocketDelegate {
                 
                 
                 // Resubscribe to existing subs on connection to ensure continuity
-                strongSelf.subscriptions.forEach({ (subscription: (String, (id: String, name: String, ready: Bool))) -> () in
+                strongSelf.subscriptions.copy().forEach({ (subscription: (String, (id: String, name: String, ready: Bool))) -> () in
                     if subscription.1.name != loginServiceConfiguration {
                         strongSelf.sub(subscription.1.id, name: subscription.1.name, params: nil, callback: nil)
                     }
@@ -177,17 +177,18 @@ open class DDPClient: NSObject {
 
     fileprivate var server:(ping: Date?, pong: Date?) = (nil, nil)
     
-    internal var resultCallbacks: [String:Completion] = [:]
-    internal var subCallbacks: [String:Completion] = [:]
-    internal var unsubCallbacks: [String:Completion] = [:]
+    internal let resultCallbacks: AtomicDict<String, Completion> = AtomicDict()
+    internal let subCallbacks: AtomicDict<String, Completion> = AtomicDict()
+    internal let unsubCallbacks: AtomicDict<String, Completion> = AtomicDict()
     
     open var url:String!
-    fileprivate var subscriptions = [String:(id:String, name:String, ready:Bool)]()
+    
+    fileprivate let subscriptions: AtomicDict<String, (id: String, name: String, ready: Bool)> = AtomicDict()
     
     internal var events = DDPEvents()
-    internal var connection:(ddp:Bool, session:String?) = (false, nil)
+    internal var connection: (ddp:Bool, session:String?) = (false, nil)
     
-    open var delegate:SwiftDDPDelegate?
+    open var delegate: SwiftDDPDelegate?
     
 
     // MARK: Settings
@@ -431,7 +432,7 @@ open class DDPClient: NSObject {
     // Iterates over the Dictionary of subscriptions to find a subscription by name
     internal func findSubscription(_ name:String) -> [String] {
         var subs:[String] = []
-        for sub in  subscriptions.values {
+        for sub in  subscriptions.copy().values {
             if sub.name == name {
                 subs.append(sub.id)
             }
@@ -441,7 +442,7 @@ open class DDPClient: NSObject {
     
     // Iterates over the Dictionary of subscriptions to find a subscription by name
     internal func subscriptionReady(_ name:String) -> Bool {
-        for sub in  subscriptions.values {
+        for sub in  subscriptions.copy().values {
             if sub.name == name {
                 return sub.ready
             }
