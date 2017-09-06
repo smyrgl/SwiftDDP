@@ -28,24 +28,25 @@ Enum value representing the types of DDP messages that the server can send
 public enum DDPMessageType:String {
     
     // case Connect = "connect"     // (client -> server)
-    case Connected  = "connected"
-    case Failed     = "failed"
-    case Ping       = "ping"
-    case Pong       = "pong"
+    case connected  = "connected"
+    case failed     = "failed"
+    case ping       = "ping"
+    case pong       = "pong"
     // case Sub     = "sub"         // (client -> server)
     // case Unsub   = "unsub"       // (client -> server)
-    case Nosub      = "nosub"
-    case Added      = "added"
-    case Changed    = "changed"
-    case Removed    = "removed"
-    case Ready      = "ready"
-    case AddedBefore = "addedBefore"
-    case MovedBefore = "movedBefore"
+    case nosub      = "nosub"
+    case added      = "added"
+    case changed    = "changed"
+    case removed    = "removed"
+    case ready      = "ready"
+    case addedBefore = "addedBefore"
+    case movedBefore = "movedBefore"
     // case Method  = "method"       // (client -> server)
-    case Result     = "result"
-    case Updated    = "updated"
-    case Error      = "error"
-    case Unhandled  = "unhandled"
+    case result     = "result"
+    case updated    = "updated"
+    case error      = "error"
+    case serverId   = "server_id"
+    case unhandled  = "unhandled"
     
 }
 
@@ -130,7 +131,7 @@ public struct DDPMessage {
     */
     
     public var isError:Bool {
-        if (self.type == .Error) { return true }    // if message is a top level error ("msg"="error")
+        if (self.type == .error) { return true }    // if message is a top level error ("msg"="error")
         if let _ = self.error { return true }       // if message contains an error object, as in method or nosub
         return false
     }

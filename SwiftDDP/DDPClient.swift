@@ -262,83 +262,88 @@ open class DDPClient: NSObject {
     
     // Parse DDP messages and dispatch to the appropriate function
     internal func ddpMessageHandler(_ message: DDPMessage) throws {
-        
         log.debug("Received message: \(message.json)")
-        
         switch message.type {
-            
-        case .Connected:
+        case .connected:
             self.connection = (true, message.session!)
             self.events.onConnected.execute(message.session!)
-            
-        case .Result: callbackQueue.addOperation() {
-            if let id = message.id,                              // Message has id
-                let completion = self.resultCallbacks[id],          // There is a callback registered for the message
-                let result = message.result {
-                    completion.execute(result, error: message.error)
-                    self.resultCallbacks[id] = nil
-            } else if let id = message.id,
-                let completion = self.resultCallbacks[id] {
-                    completion.execute(nil, error:message.error)
-                    self.resultCallbacks[id] = nil
-            }
+        case .result:
+            callbackQueue.addOperation() {
+                if let id = message.id,                              // Message has id
+                    let completion = self.resultCallbacks[id],          // There is a callback registered for the message
+                    let result = message.result {
+                        completion.execute(result, error: message.error)
+                        self.resultCallbacks[id] = nil
+                } else if let id = message.id,
+                    let completion = self.resultCallbacks[id] {
+                        completion.execute(nil, error:message.error)
+                        self.resultCallbacks[id] = nil
+                }
             }
             
             // Principal callbacks for managing data
             // Document was added
-        case .Added: documentQueue.addOperation() {
-            if let collection = message.collection,
-                let id = message.id {
-                    self.documentWasAdded(collection, id: id, fields: message.fields)
-            }
+        case .added:
+            documentQueue.addOperation() {
+                if let collection = message.collection,
+                    let id = message.id {
+                        self.documentWasAdded(collection, id: id, fields: message.fields)
+                }
             }
             
             // Document was changed
-        case .Changed: documentQueue.addOperation() {
-            if let collection = message.collection,
-                let id = message.id {
-                    self.documentWasChanged(collection, id: id, fields: message.fields, cleared: message.cleared)
-            }
+        case .changed:
+            documentQueue.addOperation() {
+                if let collection = message.collection,
+                    let id = message.id {
+                        self.documentWasChanged(collection, id: id, fields: message.fields, cleared: message.cleared)
+                }
             }
             
             // Document was removed
-        case .Removed: documentQueue.addOperation() {
-            if let collection = message.collection,
-                let id = message.id {
-                    self.documentWasRemoved(collection, id: id)
-            }
+        case .removed:
+            documentQueue.addOperation() {
+                if let collection = message.collection,
+                    let id = message.id {
+                        self.documentWasRemoved(collection, id: id)
+                }
             }
             
             // Notifies you when the result of a method changes
-        case .Updated: documentQueue.addOperation() {
-            if let methods = message.methods {
-                self.methodWasUpdated(methods)
-            }
+        case .updated:
+            documentQueue.addOperation() {
+                if let methods = message.methods {
+                    self.methodWasUpdated(methods)
+                }
             }
             
             // Callbacks for managing subscriptions
-        case .Ready: documentQueue.addOperation() {
-            if let subs = message.subs {
-                self.ready(subs)
-            }
+        case .ready:
+            documentQueue.addOperation() {
+                if let subs = message.subs {
+                    self.ready(subs)
+                }
             }
             
             // Callback that fires when subscription has been completely removed
             //
-        case .Nosub: documentQueue.addOperation() {
-            if let id = message.id {
-                self.nosub(id, error: message.error)
+        case .nosub:
+            documentQueue.addOperation() {
+                if let id = message.id {
+                    self.nosub(id, error: message.error)
+                }
             }
-            }
-            
-        case .Ping: heartbeat.addOperation() { self.pong(message) }
-            
-        case .Pong:
+        case .ping:
+            heartbeat.addOperation() { self.pong(message) }
+        case .pong:
             break
-        case .Error: background.addOperation() {
-            self.didReceiveErrorMessage(DDPError(json: message.json))
+        case .error:
+            background.addOperation() {
+                self.didReceiveErrorMessage(DDPError(json: message.json))
             }
-            
+        case .serverId:
+            // Ignore, this is just used for backwards compatibility for pre 0.7.0
+            break
         default: log.error("Unhandled message: \(message.json)")
             
         }
