@@ -340,3 +340,11 @@ public struct DDPError: Error {
         self.json = json as? NSDictionary
     }
 }
+
+/**
+ Support LocalizedError to pass messages through to UI.
+ */
+extension DDPError: LocalizedError {
+    public var errorDescription: String? { return self.reason }
+}
+
