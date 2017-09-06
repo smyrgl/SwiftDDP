@@ -76,7 +76,6 @@ public struct Completion {
     }
     
     func execute() {
-        
         if let callback = self.callback {
             if let queue = executionQueue {
                 queue.addOperation() {

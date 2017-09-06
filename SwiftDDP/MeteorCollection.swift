@@ -22,7 +22,7 @@ import Foundation
 
 public let METEOR_COLLECTION_SET_DID_CHANGE = "METEOR_COLLECTION_SET_DID_CHANGE"
 
-func debounce( _ delay:TimeInterval, queue:DispatchQueue, action: @escaping (()->()) ) -> ()->() {
+func debounce( _ delay: TimeInterval, queue: DispatchQueue, action: @escaping (()->()) ) -> ()->() {
     
     var lastFireTime = DispatchTime(uptimeNanoseconds: 0)
     let dispatchDelay = Int64(delay * Double(NSEC_PER_SEC))
