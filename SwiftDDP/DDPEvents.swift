@@ -90,7 +90,7 @@ public struct DDPEvents {
     
     - parameter collection:     the string name of the collection to which the document belongs
     - parameter id:             the string unique id that identifies the document on the server
-    - parameter fields:         an optional NSDictionary with the documents properties
+    - parameter fields:         an optional Dictionary with the documents properties
     */
     
     public var onAdded:             ((_ collection: String, _ id: String, _ fields: [String: Any]?) -> ())?
@@ -101,7 +101,7 @@ public struct DDPEvents {
     
     - parameter collection:     the string name of the collection to which the document belongs
     - parameter id:             the string unique id that identifies the document on the server
-    - parameter fields:         an optional NSDictionary with the documents properties
+    - parameter fields:         an optional Dictionary with the documents properties
     - parameter cleared:        an optional array of string property names to delete
     */
     
@@ -115,9 +115,6 @@ public struct DDPEvents {
     */
     
     public var onRemoved:           ((_ collection: String, _ id: String) -> ())?
-    
-    // RPC Messages
-    // public var onResult:            (json: NSDictionary?, callback:(result:Any?, error:Any?) -> ()) -> () = {json, callback in callback(result: json, error:nil) }
     
     /**
     onUpdated executes when the server sends a notification that all the consequences of a method call have

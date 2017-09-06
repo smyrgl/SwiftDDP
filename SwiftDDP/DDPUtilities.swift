@@ -68,7 +68,7 @@ func getValue(fromUrl url: String, forArgument argument:String) -> String? {
 
 // Misc
 
-func dateFromTimestamp(_ containedIn: NSDictionary) -> Date {
+func dateFromTimestamp(_ containedIn: [String: Any]) -> Date {
     let date = containedIn["$date"] as? Double
     let timestamp = TimeInterval(date! / 1000)
     return Date(timeIntervalSince1970: timestamp)

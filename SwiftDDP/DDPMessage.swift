@@ -70,20 +70,19 @@ A struct to parse, encapsulate and facilitate handling of DDP message strings
 public struct DDPMessage {
     
     /**
-    The message's properties, stored as an NSDictionary
+    The message's properties, stored as an Dictionary
     */
     
-    public var json:NSDictionary!
+    public var json: [String: Any]
     
     /**
     Initialize a message struct, with a Json string
     */
     
-    public init(message:String) {
-        
-        if let JSON = message.dictionaryValue() { json = JSON }
+    public init(message: String) {
+        if let JSON = message.dictionaryValue() { self.json = JSON }
         else {
-            json = ["msg":"error", "reason":"SwiftDDP JSON serialization error.",
+            self.json = ["msg":"error", "reason":"SwiftDDP JSON serialization error.",
                 "details": "SwiftDDP JSON serialization error. JSON string was: \(message). Message will be handled as a DDP message error."]
         }
     }
@@ -92,21 +91,13 @@ public struct DDPMessage {
     Initialize a message struct, with a dictionary of strings
     */
     
-    public init(message:[String:String]) {
-        json = message as NSDictionary
+    public init(message: [String: Any]) {
+        self.json = message
     }
     
     /**
-    Converts an NSDictionary to a JSON string
+    Converts a Dictionary to a JSON string
     */
-    
-    public static func toString(_ json:Any) -> String? {
-        if let data = try? JSONSerialization.data(withJSONObject: json, options: JSONSerialization.WritingOptions(rawValue: 0)) {
-            let message = NSString(data: data, encoding: String.Encoding.ascii.rawValue) as String?
-            return message
-        }
-        return nil
-    }
     
     //
     // Computed variables
@@ -116,27 +107,27 @@ public struct DDPMessage {
     Returns the DDP message type, of type DDPMessageType enum
     */
     
-    public var type:DDPMessageType {
+    public var type: DDPMessageType {
         if let msg = message,
             let type = DDPMessageType(rawValue: msg) {
                 return type
         }
-        return DDPMessageType(rawValue: "unhandled")!
+        return .unhandled
     }
     
     /**
     Returns a boolean value indicating if the message is an error message or not
     */
     
-    public var isError:Bool {
+    public var isError: Bool {
         if (self.type == .error) { return true }    // if message is a top level error ("msg"="error")
         if let _ = self.error { return true }       // if message contains an error object, as in method or nosub
         return false
     }
     
     // Returns the root-level keys of the JSON object
-    internal var keys:[String] {
-        return json.allKeys as! [String]
+    internal var keys: [String] {
+        return Array(json.keys)
     }
     
     public func hasProperty(_ name:String) -> Bool {
@@ -206,8 +197,8 @@ public struct DDPMessage {
     The optional DDP error object
     */
     
-    public var error:DDPError? {
-        get { if let e = json["error"] as? NSDictionary { return DDPError(json:e) } else { return nil }}
+    public var error: DDPError? {
+        get { if let e = json["error"] as? [String: Any] { return DDPError(json: e) } else { return nil }}
     }
     
     /**
@@ -255,7 +246,7 @@ public struct DDPMessage {
     */
     
     public var result:Any? {
-        get { return json.object(forKey: "result") as Any? }
+        get { return json["result"] }
     }
     
     /**
@@ -298,31 +289,31 @@ A struct encapsulating a DDP error message
 
 public struct DDPError: Error {
     
-    fileprivate var json:NSDictionary?
+    fileprivate var json: [String: Any]?
     
     /**
     The string error code
     */
     
-    public var error:String? { return json?["error"] as? String }                      // Error code
+    public var error: String? { return json?["error"] as? String }                      // Error code
     
     /**
     The detailed message given for an error returned from the server
     */
     
-    public var reason:String? { return json?["reason"] as? String }
+    public var reason: String? { return json?["reason"] as? String }
     
     /**
     The string providing error details
     */
     
-    public var details:String? { return json?["details"] as? String }
+    public var details: String? { return json?["details"] as? String }
     
     /**
     If the original message parsed properly, it is included here
     */
     
-    public var offendingMessage:String? { return json?["offendingMessage"] as? String }
+    public var offendingMessage: String? { return json?["offendingMessage"] as? String }
     
     /**
     Helper variable that returns true if the struct has both an error code and a reason
@@ -334,8 +325,8 @@ public struct DDPError: Error {
         return false
     }
     
-    init(json:Any?) {
-        self.json = json as? NSDictionary
+    init(json: Any?) {
+        self.json = json as? [String: Any]
     }
 }
 

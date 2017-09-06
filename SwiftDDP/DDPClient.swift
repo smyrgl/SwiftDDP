@@ -175,11 +175,11 @@ open class DDPClient: NSObject {
         didSet{ socket.disableSSLCertValidation = self.allowSelfSignedSSL }
     }
 
-    fileprivate var server:(ping:Date?, pong:Date?) = (nil, nil)
+    fileprivate var server:(ping: Date?, pong: Date?) = (nil, nil)
     
-    internal var resultCallbacks:[String:Completion] = [:]
-    internal var subCallbacks:[String:Completion] = [:]
-    internal var unsubCallbacks:[String:Completion] = [:]
+    internal var resultCallbacks: [String:Completion] = [:]
+    internal var subCallbacks: [String:Completion] = [:]
+    internal var unsubCallbacks: [String:Completion] = [:]
     
     open var url:String!
     fileprivate var subscriptions = [String:(id:String, name:String, ready:Bool)]()
@@ -256,7 +256,7 @@ open class DDPClient: NSObject {
             self.server.ping = Date()
             var response = ["msg":"pong"]
             if let id = ping.id { response["id"] = id }
-            self.sendMessage(response as NSDictionary)
+            self.sendMessage(response)
         }
     }
     
@@ -347,8 +347,8 @@ open class DDPClient: NSObject {
         }
     }
     
-    fileprivate func sendMessage(_ message:NSDictionary) {
-        if let m = message.stringValue() {
+    fileprivate func sendMessage(_ message: [String: Any]) {
+        if let m = message.toJSONString() {
             self.socket.write(string: m)
         }
     }
@@ -366,7 +366,7 @@ open class DDPClient: NSObject {
     
     @discardableResult open func method(_ name: String, params: Any?, callback: DDPMethodCallback?) -> String {
         let id = getId()
-        let message = ["msg":"method", "method":name, "id":id] as NSMutableDictionary
+        var message: [String: Any] = ["msg": "method", "method": name, "id": id]
         if let p = params { message["params"] = p }
         
         if let completionCallback = callback {
@@ -392,7 +392,7 @@ open class DDPClient: NSObject {
         }
         
         self.subscriptions[id] = (id, name, false)
-        let message = ["msg":"sub", "name":name, "id":id] as NSMutableDictionary
+        var message: [String: Any] = ["msg": "sub", "name": name, "id": id]
         if let p = params { message["params"] = p }
         userBackground.addOperation() {
             self.sendMessage(message)

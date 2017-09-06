@@ -103,7 +103,7 @@ open class MeteorCollection<T: MeteorDocument>: AbstractCollection {
     
     - parameter collection:     the string name of the collection to which the document belongs
     - parameter id:             the string unique id that identifies the document on the server
-    - parameter fields:         an optional NSDictionary with the documents properties
+    - parameter fields:         an optional Dictionary with the documents properties
     */
     
     open override func documentWasAdded(_ collection: String, id: String, fields: [String: Any]?) {
@@ -117,7 +117,7 @@ open class MeteorCollection<T: MeteorDocument>: AbstractCollection {
     
     - parameter collection:     the string name of the collection to which the document belongs
     - parameter id:             the string unique id that identifies the document on the server
-    - parameter fields:         an optional NSDictionary with the documents properties
+    - parameter fields:         an optional Dictionary with the documents properties
     - parameter cleared:                    Optional array of strings (field names to delete)
     */
     

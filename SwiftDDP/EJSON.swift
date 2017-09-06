@@ -44,8 +44,8 @@ open class EJSON: NSObject {
     Converts an eJSON date to NSDate
     */
     
-    open static func convertToNSDate(_ ejson:NSDictionary) -> Date {
-        let timeInterval = TimeInterval(ejson.value(forKey: "$date") as! Double) / 1000
+    open static func convertToNSDate(_ ejson: [String: Any]) -> Date {
+        let timeInterval = TimeInterval(ejson["$date"] as! Double) / 1000
         return Date(timeIntervalSince1970: timeInterval)
     }
     

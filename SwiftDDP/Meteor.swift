@@ -149,11 +149,11 @@ open class Meteor {
     - parameter password:   A string password 
     */
     
-    open static func connect(_ url:String, email:String, password:String) {
+    open static func connect(_ url: String, email: String, password: String) {
         client.connect(url) { session in
             client.loginWithPassword(email, password: password) { result, error in
                 guard let _ = error else {
-                    if let _ = result as? NSDictionary {
+                    if let _ = result {
                         // client.userDidLogin(credentials)
                     }
                     return
@@ -207,7 +207,7 @@ open class Meteor {
      
      */
     
-    open static func signupWithEmail(_ email: String, password: String, profile: NSDictionary, callback: DDPMethodCallback?) {
+    open static func signupWithEmail(_ email: String, password: String, profile: [String : Any], callback: DDPMethodCallback?) {
         client.signupWithEmail(email, password: password, profile: profile, callback: callback)
     }
     
@@ -222,7 +222,7 @@ open class Meteor {
      
      */
     
-    open static func signupWithUsername(_ username: String, password: String, email: String? = nil, profile: NSDictionary? = nil, callback: DDPMethodCallback? = nil) {
+    open static func signupWithUsername(_ username: String, password: String, email: String? = nil, profile: [String : Any]? = nil, callback: DDPMethodCallback? = nil) {
         client.signupWithUsername(username, password: password, email: email, profile: profile, callback: callback)
     }
     
@@ -386,7 +386,7 @@ open class Meteor {
         
         - parameter collection:     the string name of the collection to which the document belongs
         - parameter id:             the string unique id that identifies the document on the server
-        - parameter fields:         an optional NSDictionary with the documents properties
+        - parameter fields:         an optional Dictionary with the documents properties
         */
         
         open override func documentWasAdded(_ collection: String, id: String, fields: [String: Any]?) {
@@ -401,7 +401,7 @@ open class Meteor {
         
         - parameter collection:     the string name of the collection to which the document belongs
         - parameter id:             the string unique id that identifies the document on the server
-        - parameter fields:         an optional NSDictionary with the documents properties
+        - parameter fields:         an optional Dictionary with the documents properties
         - parameter cleared:        an optional array of string property names to delete
         */
         
