@@ -34,9 +34,9 @@ enum Error: String {
 */
 
 public protocol MeteorCollectionType {
-    func documentWasAdded(_ collection:String, id:String, fields:NSDictionary?)
-    func documentWasChanged(_ collection:String, id:String, fields:NSDictionary?, cleared:[String]?)
-    func documentWasRemoved(_ collection:String, id:String)
+    func documentWasAdded(_ collection: String, id: String, fields: [String: Any]?)
+    func documentWasChanged(_ collection: String, id: String, fields: [String: Any]?, cleared: [String]?)
+    func documentWasRemoved(_ collection: String, id: String)
 }
 
 /**
@@ -51,7 +51,7 @@ open class Meteor {
         
     open static let client = Meteor.Client()          // Client is a singleton object
     
-    internal static var collections = [String:MeteorCollectionType]()
+    internal static var collections = [String: MeteorCollectionType]()
     
     /**
     returns a Meteor collection, if it exists
@@ -268,7 +268,7 @@ open class Meteor {
      - parameter callback:   A closure with result and error parameters describing the outcome of the operation
      */
     
-    open static func login(_ params: NSDictionary, callback:DDPMethodCallback?) {
+    open static func login(_ params: [String: Any], callback:DDPMethodCallback?) {
         client.login(params, callback: callback)
     }
     
@@ -355,7 +355,7 @@ open class Meteor {
     - parameter callback: An optional closure to be executed after the client has logged out
     */
     
-    open static func logout(_ callback:DDPMethodCallback?) {
+    open static func logout(_ callback: DDPMethodCallback?) {
         client.logout(callback)
     }
     
@@ -389,7 +389,7 @@ open class Meteor {
         - parameter fields:         an optional NSDictionary with the documents properties
         */
         
-        open override func documentWasAdded(_ collection:String, id:String, fields:NSDictionary?) {
+        open override func documentWasAdded(_ collection: String, id: String, fields: [String: Any]?) {
             if let meteorCollection = Meteor.collections[collection] {
                 meteorCollection.documentWasAdded(collection, id: id, fields: fields)
             }
@@ -405,7 +405,7 @@ open class Meteor {
         - parameter cleared:        an optional array of string property names to delete
         */
         
-        open override func documentWasChanged(_ collection:String, id:String, fields:NSDictionary?, cleared:[String]?) {
+        open override func documentWasChanged(_ collection: String, id: String, fields: [String: Any]?, cleared: [String]?) {
             if let meteorCollection = Meteor.collections[collection] {
                 meteorCollection.documentWasChanged(collection, id: id, fields: fields, cleared: cleared)
             }
@@ -419,7 +419,7 @@ open class Meteor {
         - parameter id:             the string unique id that identifies the document on the server
         */
         
-        open override func documentWasRemoved(_ collection:String, id:String) {
+        open override func documentWasRemoved(_ collection: String, id: String) {
             if let meteorCollection = Meteor.collections[collection] {
                 meteorCollection.documentWasRemoved(collection, id: id)
             }

@@ -251,7 +251,7 @@ extension DDPClient {
     }
     
     // Callback runs on main thread
-    public func login(_ params: NSDictionary, callback: ((_ result: Any?, _ error: DDPError?) -> ())?) {
+    public func login(_ params: [String: Any], callback: ((_ result: Any?, _ error: DDPError?) -> ())?) {
         
         // method is run on the userBackground queue
         method("login", params: NSArray(arrayLiteral: params)) { result, error in
@@ -307,7 +307,7 @@ extension DDPClient {
     
     public func loginWithPassword(_ email: String, password: String, callback: DDPMethodCallback?) {
         if !(loginWithToken(callback)) {
-            let params = ["user": ["email": email], "password":["digest": password.sha256(), "algorithm":"sha-256"]] as NSDictionary
+            let params = ["user": ["email": email], "password":["digest": password.sha256(), "algorithm":"sha-256"]]
             login(params, callback: callback)
         }
     }
@@ -322,7 +322,7 @@ extension DDPClient {
     
     public func loginWithUsername(_ username: String, password: String, callback: DDPMethodCallback?) {
         if !(loginWithToken(callback)) {
-            let params = ["user": ["username": username], "password":["digest": password.sha256(), "algorithm":"sha-256"]] as NSDictionary
+            let params = ["user": ["username": username], "password":["digest": password.sha256(), "algorithm":"sha-256"]]
             login(params, callback: callback)
         }
     }
@@ -338,7 +338,7 @@ extension DDPClient {
             let tokenDate = userData.object(forKey: DDP_TOKEN_EXPIRES) as? Date {
                 print("Found token & token expires \(token), \(tokenDate)")
                 if (tokenDate.compare(Date()) == ComparisonResult.orderedDescending) {
-                    let params = ["resume":token] as NSDictionary
+                    let params = ["resume": token]
                     login(params, callback:callback)
                     return true
                 }

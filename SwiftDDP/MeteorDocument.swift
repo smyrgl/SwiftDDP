@@ -24,7 +24,7 @@ open class MeteorDocument: NSObject {
     
     var _id:String
     
-    required public init(id: String, fields: NSDictionary?) {
+    required public init(id: String, fields: [String: Any]?) {
         self._id = id
         super.init()
         if let properties = fields {
@@ -36,7 +36,7 @@ open class MeteorDocument: NSObject {
         }
     }
     
-    open func update(_ fields: NSDictionary?, cleared: [String]?) {
+    open func update(_ fields: [String: Any]?, cleared: [String]?) {
         if let properties = fields {
             for (key,value) in properties  {
                 print("Key: \(key), Value: \(value)")
@@ -67,8 +67,8 @@ open class MeteorDocument: NSObject {
     /*
     This method should be public so users of this library can override it for parsing their variables in their MeteorDocument object when having structs and such in their Document.
     */
-    open func fields() -> NSDictionary {
-        let fieldsDict = NSMutableDictionary()
+    open func fields() -> [String: Any] {
+        var fieldsDict = [String: Any]()
         let properties = propertyNames()
         
         for name in properties {
@@ -77,14 +77,12 @@ open class MeteorDocument: NSObject {
                 if value as? Date != nil {
                     value = EJSON.convertToEJSONDate(value as! Date)
                 }
-                
-                fieldsDict.setValue(value, forKey: name)
+                fieldsDict[name] = value
             }
         }
-        
-        fieldsDict.setValue(self._id, forKey: "_id")
-        print("fields \(fieldsDict)")
-        return fieldsDict as NSDictionary
+        fieldsDict["_id"] = _id
+        log.debug("fields \(fieldsDict)")
+        return fieldsDict
     }
     
 }

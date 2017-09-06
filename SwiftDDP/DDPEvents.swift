@@ -93,7 +93,7 @@ public struct DDPEvents {
     - parameter fields:         an optional NSDictionary with the documents properties
     */
     
-    public var onAdded:             ((_ collection:String, _ id:String, _ fields:NSDictionary?) -> ())?
+    public var onAdded:             ((_ collection: String, _ id: String, _ fields: [String: Any]?) -> ())?
     
     /**
     onChanged executes when the server sends an instruction to modify a local document
@@ -105,7 +105,7 @@ public struct DDPEvents {
     - parameter cleared:        an optional array of string property names to delete
     */
     
-    public var onChanged:           ((_ collection:String, _ id:String, _ fields:NSDictionary?, _ cleared:NSArray?) -> ())?
+    public var onChanged:           ((_ collection: String, _ id: String, _ fields: [String: Any]?, _ cleared: [String]?) -> ())?
     
     /**
     onRemoved executes when the server sends an instruction to remove a document from the local collection
@@ -114,7 +114,7 @@ public struct DDPEvents {
     - parameter id:             the string unique id that identifies the document on the server
     */
     
-    public var onRemoved:           ((_ collection:String, _ id:String) -> ())?
+    public var onRemoved:           ((_ collection: String, _ id: String) -> ())?
     
     // RPC Messages
     // public var onResult:            (json: NSDictionary?, callback:(result:Any?, error:Any?) -> ()) -> () = {json, callback in callback(result: json, error:nil) }
@@ -134,7 +134,7 @@ public struct DDPEvents {
     - parameter message:    A DDPError message describing the error
     */
     
-    public var onError:             ((_ message:DDPError) -> ())?
+    public var onError:             ((_ message: DDPError) -> ())?
     
 }
 

@@ -28,24 +28,24 @@ not available, execution defaults to the main queue.
 
 public struct Completion {
     
-    var executionQueue:OperationQueue? = OperationQueue.current
-    var methodCallback:DDPMethodCallback?
-    var connectedCallback:DDPConnectedCallback?
-    var callback:DDPCallback?
+    var executionQueue: OperationQueue? = OperationQueue.current
+    var methodCallback: DDPMethodCallback?
+    var connectedCallback: DDPConnectedCallback?
+    var callback: DDPCallback?
     
-    init(methodCallback:@escaping DDPMethodCallback) {
+    init(methodCallback: @escaping DDPMethodCallback) {
         self.methodCallback = methodCallback
     }
     
-    init(connectedCallback:@escaping DDPConnectedCallback) {
+    init(connectedCallback: @escaping DDPConnectedCallback) {
         self.connectedCallback = connectedCallback
     }
     
-    init(callback:@escaping DDPCallback) {
+    init(callback: @escaping DDPCallback) {
         self.callback = callback
     }
     
-    func execute(_ result:Any?, error:DDPError?) {
+    func execute(_ result: Any?, error: DDPError?) {
         
         if let callback = methodCallback {
             if let queue = executionQueue {
@@ -60,7 +60,7 @@ public struct Completion {
         }
     }
     
-    func execute(_ session:String) {
+    func execute(_ session: String) {
         
         if let callback = connectedCallback {
             if let queue = executionQueue {

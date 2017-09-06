@@ -45,9 +45,7 @@ public enum DDPMessageType:String {
     case result     = "result"
     case updated    = "updated"
     case error      = "error"
-    case serverId   = "server_id"
     case unhandled  = "unhandled"
-    
 }
 
     // Method or Nosub error
@@ -224,8 +222,8 @@ public struct DDPMessage {
     The optional DDP fields dictionary
     */
     
-    public var fields:NSDictionary? {
-        get { return json["fields"] as? NSDictionary }
+    public var fields: [String: Any]? {
+        get { return json["fields"] as? [String: Any] }
     }
     
     /**

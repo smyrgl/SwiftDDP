@@ -45,7 +45,7 @@ MeteorCollection provides basic persistence as well as an api for integrating Sw
 */
 
 // MeteorCollectionType protocol declaration is necessary
-open class MeteorCollection<T:MeteorDocument>: AbstractCollection {
+open class MeteorCollection<T: MeteorDocument>: AbstractCollection {
     
     let collectionSetDidChange = debounce(TimeInterval(0.33), queue: DispatchQueue.main, action: {
         OperationQueue.main.addOperation() {
@@ -106,7 +106,7 @@ open class MeteorCollection<T:MeteorDocument>: AbstractCollection {
     - parameter fields:         an optional NSDictionary with the documents properties
     */
     
-    open override func documentWasAdded(_ collection:String, id:String, fields:NSDictionary?) {
+    open override func documentWasAdded(_ collection: String, id: String, fields: [String: Any]?) {
         let document = T(id: id, fields: fields)
         self.documents[id] = document
         collectionSetDidChange()
@@ -121,7 +121,7 @@ open class MeteorCollection<T:MeteorDocument>: AbstractCollection {
     - parameter cleared:                    Optional array of strings (field names to delete)
     */
     
-    open override func documentWasChanged(_ collection:String, id:String, fields:NSDictionary?, cleared:[String]?) {
+    open override func documentWasChanged(_ collection: String, id:String, fields: [String: Any]?, cleared: [String]?) {
         if let document = documents[id] {
             document.update(fields, cleared: cleared)
             self.documents[id] = document
@@ -136,7 +136,7 @@ open class MeteorCollection<T:MeteorDocument>: AbstractCollection {
     - parameter id:             the string unique id that identifies the document on the server
     */
     
-    open override func documentWasRemoved(_ collection:String, id:String) {
+    open override func documentWasRemoved(_ collection: String, id: String) {
         if let _ = documents[id] {
             self.documents[id] = nil
             collectionSetDidChange()

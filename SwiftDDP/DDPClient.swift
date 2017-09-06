@@ -33,8 +33,8 @@ import SwiftyBeaver
 
 let log = SwiftyBeaver.self
 
-public typealias DDPMethodCallback = (_ result:Any?, _ error:DDPError?) -> ()
-public typealias DDPConnectedCallback = (_ session:String) -> ()
+public typealias DDPMethodCallback = (_ result: Any?, _ error: DDPError?) -> ()
+public typealias DDPConnectedCallback = (_ session: String) -> ()
 public typealias DDPCallback = () -> ()
 
 
@@ -341,10 +341,8 @@ open class DDPClient: NSObject {
             background.addOperation() {
                 self.didReceiveErrorMessage(DDPError(json: message.json))
             }
-        case .serverId:
-            // Ignore, this is just used for backwards compatibility for pre 0.7.0
-            break
-        default: log.error("Unhandled message: \(message.json)")
+        default:
+            log.error("Unhandled message: \(message.json)")
             
         }
     }
@@ -545,7 +543,7 @@ open class DDPClient: NSObject {
     - parameter subscriptionName:           The name of the subscription
     */
     
-    open func subscriptionIsReady(_ subscriptionId: String, subscriptionName:String) {}
+    open func subscriptionIsReady(_ subscriptionId: String, subscriptionName: String) {}
     
     /**
      Executes when a subscription is removed.
@@ -554,7 +552,7 @@ open class DDPClient: NSObject {
      - parameter subscriptionName:           The name of the subscription
      */
     
-    open func subscriptionWasRemoved(_ subscriptionId:String, subscriptionName:String) {}
+    open func subscriptionWasRemoved(_ subscriptionId:String, subscriptionName: String) {}
     
     
     /**
@@ -565,7 +563,7 @@ open class DDPClient: NSObject {
      - parameter fields:                     The documents properties
      */
     
-    open func documentWasAdded(_ collection:String, id:String, fields:NSDictionary?) {
+    open func documentWasAdded(_ collection: String, id: String, fields: [String: Any]?) {
         if let added = events.onAdded { added(collection, id, fields) }
     }
     
@@ -576,7 +574,7 @@ open class DDPClient: NSObject {
      - parameter id:                         The document's unique id
      */
     
-    open func documentWasRemoved(_ collection:String, id:String) {
+    open func documentWasRemoved(_ collection: String, id: String) {
         if let removed = events.onRemoved { removed(collection, id) }
     }
     
@@ -589,8 +587,8 @@ open class DDPClient: NSObject {
      - parameter cleared:                    Optional array of strings (field names to delete)
      */
     
-    open func documentWasChanged(_ collection:String, id:String, fields:NSDictionary?, cleared:[String]?) {
-        if let changed = events.onChanged { changed(collection, id, fields, cleared as NSArray?) }
+    open func documentWasChanged(_ collection: String, id: String, fields: [String: Any]?, cleared: [String]?) {
+        if let changed = events.onChanged { changed(collection, id, fields, cleared) }
     }
     
     /**
@@ -599,7 +597,7 @@ open class DDPClient: NSObject {
      - parameter methods:                    An array of strings (ids passed to 'method', all of whose writes have been reflected in data messages)
      */
     
-    open func methodWasUpdated(_ methods:[String]) {
+    open func methodWasUpdated(_ methods: [String]) {
         if let updated = events.onUpdated { updated(methods) }
     }
     
