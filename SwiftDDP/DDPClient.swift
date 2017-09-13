@@ -190,6 +190,11 @@ open class DDPClient: NSObject {
     
     open var delegate: SwiftDDPDelegate?
     
+    public var enabledSSLCipherSuites: [SSLCipherSuite]? {
+        get { return socket?.enabledSSLCipherSuites }
+        set { socket?.enabledSSLCipherSuites = newValue }
+    }
+    
 
     // MARK: Settings
     

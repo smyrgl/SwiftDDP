@@ -30,7 +30,7 @@ open class MeteorDocument: NSObject {
         if let properties = fields {
             for (key,value) in properties  {
                 if !(value is NSNull) {
-                    self.setValue(value, forKey: key as! String)
+                    self.setValue(value, forKey: key)
                 }
             }
         }
@@ -40,7 +40,7 @@ open class MeteorDocument: NSObject {
         if let properties = fields {
             for (key,value) in properties  {
                 print("Key: \(key), Value: \(value)")
-                self.setValue(value, forKey: key as! String)
+                self.setValue(value, forKey: key)
             }
         }
         
