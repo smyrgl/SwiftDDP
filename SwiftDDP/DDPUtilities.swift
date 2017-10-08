@@ -28,8 +28,8 @@ func randomBase64String(_ n: Int = 20) -> String {
     let BASE64_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
     
     for _ in 1...n {
-        let r = arc4random() % UInt32(BASE64_CHARS.characters.count)
-        let index = BASE64_CHARS.characters.index(BASE64_CHARS.startIndex, offsetBy: Int(r))
+        let r = arc4random() % UInt32(BASE64_CHARS.count)
+        let index = BASE64_CHARS.index(BASE64_CHARS.startIndex, offsetBy: Int(r))
         let c = BASE64_CHARS[index]
         string += String(c)
     }
