@@ -149,16 +149,9 @@ open class Meteor {
     - parameter password:   A string password 
     */
     
-    open static func connect(_ url: String, email: String, password: String) {
+    open static func connect(_ url: String, username: String, password: String, callback: DDPMethodCallback? = nil) {
         client.connect(url) { session in
-            client.loginWithPassword(email, password: password) { result, error in
-                guard let _ = error else {
-                    if let _ = result {
-                        // client.userDidLogin(credentials)
-                    }
-                    return
-                }
-            }
+            client.loginWithUsername(username, password: password, callback: callback)
         }
     }
     

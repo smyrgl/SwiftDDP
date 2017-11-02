@@ -48,8 +48,7 @@ public protocol SwiftDDPDelegate {
 }
 
 extension DDPClient: WebSocketDelegate {
-    
-    public func websocketDidConnect(socket: WebSocket) {
+    public func websocketDidConnect(socket: WebSocketClient) {
         self.heartbeat.addOperation() { [weak self] in
             // Add a subscription to loginServices to each connection event
             let callbackWithServiceConfiguration = { (session:String) in
@@ -77,7 +76,7 @@ extension DDPClient: WebSocketDelegate {
         }
     }
     
-    public func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
+    public func websocketDidDisconnect(socket: WebSocketClient, error: Error?) {
         log.warning("Socket connection closed with error: \(String(describing: error))")
         self.backOff.createBackoff({ [weak self] in
             self?.socket.connect()
@@ -85,26 +84,25 @@ extension DDPClient: WebSocketDelegate {
         })
     }
     
-    public func websocketDidReceiveMessage(socket: WebSocket, text: String) {
+    public func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
         self.background.addOperation() { [weak self] in
             do { try self?.ddpMessageHandler(DDPMessage(message: text)) }
             catch { log.debug("Message handling error. Raw message: \(text)")}
         }
     }
     
-    public func websocketDidReceiveData(socket: WebSocket, data: Data) {
+    public func websocketDidReceiveData(socket: WebSocketClient, data: Data) {
         guard let text = String(data: data, encoding: .utf8) else { log.warning("Could not decode data received: \(data)"); return }
         self.background.addOperation() { [weak self] in
             do { try self?.ddpMessageHandler(DDPMessage(message: text)) }
             catch { log.debug("Message handling error. Raw message: \(text)")}
         }
     }
-
 }
 
 extension DDPClient: WebSocketPongDelegate {
-    public func websocketDidReceivePong(socket: WebSocket, data: Data?) {
-         heartbeat.addOperation() { self.server.pong = Date() }
+    public func websocketDidReceivePong(socket: WebSocketClient, data: Data?) {
+        heartbeat.addOperation() { self.server.pong = Date() }
     }
 }
 
