@@ -48,7 +48,6 @@ public protocol SwiftDDPDelegate {
 }
 
 extension DDPClient: WebSocketDelegate {
-    
     public func websocketDidConnect(socket: WebSocketClient) {
         self.heartbeat.addOperation() { [weak self] in
             // Add a subscription to loginServices to each connection event
@@ -99,12 +98,11 @@ extension DDPClient: WebSocketDelegate {
             catch { log.debug("Message handling error. Raw message: \(text)")}
         }
     }
-
 }
 
 extension DDPClient: WebSocketPongDelegate {
     public func websocketDidReceivePong(socket: WebSocketClient, data: Data?) {
-         heartbeat.addOperation() { self.server.pong = Date() }
+      heartbeat.addOperation() { self.server.pong = Date() }
     }
 }
 

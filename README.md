@@ -1,7 +1,7 @@
-SwiftDDP  <img src="https://github.com/siegesmund/SwiftDDP/blob/master/assets/logo.jpg" height="75" width="75"/> 
+SwiftDDP  <img src="https://github.com/siegesmund/SwiftDDP/blob/master/assets/logo.jpg" height="75" width="75"/>
 =====
 ## A client for Meteor servers, written in Swift
-### version 0.4.1
+### version 0.6.1
 
 #### License
 MIT  
@@ -139,28 +139,28 @@ Meteor.subscribe("todos", [1,2,3,4]) {
 // Subscribe to cities near Boston
 let id1 = Meteor.subscribe("cities", ["lat": 42.358056 ,"lon": -71.063611]) {
     // You are now subscribed to cities associated with the coordinates 42.358056, -71.063611
-    // id1 contains a key that allows you to cancel the subscription associated with 
+    // id1 contains a key that allows you to cancel the subscription associated with
     // the parameters ["lat": 42.358056 ,"lon": -71.063611]
 }
 
 // Subscribe to cities near Paris
 let id2 = Meteor.subscribe("cities", ["lat": 48.8567, "lon": 2.3508]){
     // You are now subscribed to cities associated with the coordinates 48.8567, 2.3508
-    // id2 contains a key that allows you to cancel the subscription associated with 
+    // id2 contains a key that allows you to cancel the subscription associated with
     // the parameters ["lat": 48.8567 ,"lon": 2.3508]
 }
 
 // Subscribe to cities near New York
 let id3 = Meteor.subscribe("cities", ["lat": 40.7127, "lon": -74.0059]){
     // You are now subscribed to cities associated with the coordinates 40.7127, -74.0059
-    // id3 contains a key that allows you to cancel the subscription associated with 
+    // id3 contains a key that allows you to cancel the subscription associated with
     // the parameters ["lat": 40.7127 ,"lon": -74.0059]
 }
 
 // When these subscriptions have completed, the collection associated with "cities" will now contain all
 // documents returned from the three subscriptions
 
-Meteor.unsubscribe(withId: id2) 
+Meteor.unsubscribe(withId: id2)
 // Your collection will now contain cities near Boston and New York, but not Paris
 Meteor.unsubscribe("cities")    
 // You are now unsubscribed to all subscriptions associated with the publication "cities"
@@ -319,7 +319,7 @@ Creating update and remove methods are also easy to create, and follow the same 
 - Bugfixes
 
 ### 0.3.1
-- Bug fixed that affected DDP dates in 32 bit environments 
+- Bug fixed that affected DDP dates in 32 bit environments
 
 ### 0.3.0
 - Changed default subscription behavior
