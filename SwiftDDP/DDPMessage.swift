@@ -282,6 +282,7 @@ public struct DDPMessage {
     }
 }
 
+private let authErrorCodeSet = Set<Int>([401, 403])
 
 /**
 A struct encapsulating a DDP error message
@@ -292,10 +293,26 @@ public struct DDPError: Error {
     fileprivate var json: [String: Any]?
     
     /**
-    The string error code
+    The integer error code
     */
     
-    public var error: String? { return json?["error"] as? String }                      // Error code
+    public var error: Int? {
+        if let intCode = json?["error"] as? Int {
+            return intCode
+        } else if let intString = json?["error"] as? String {
+            return Int(intString)
+        }
+        return nil
+    }
+    
+    /**
+     Whether it is an authentication error
+     */
+    
+    public var isAuthError: Bool {
+        guard let error = error else { return false }
+        return authErrorCodeSet.contains(error)
+    }
     
     /**
     The detailed message given for an error returned from the server

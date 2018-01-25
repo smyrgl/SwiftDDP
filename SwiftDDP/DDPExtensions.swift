@@ -339,7 +339,12 @@ extension DDPClient {
                 print("Found token & token expires \(token), \(tokenDate)")
                 if (tokenDate.compare(Date()) == ComparisonResult.orderedDescending) {
                     let params = ["resume": token]
-                    login(params, callback:callback)
+                    login(params, callback: { [weak self] (res, err) in
+                        if err?.isAuthError == true {
+                            self?.resetUserData()
+                        }
+                        callback?(res, err)
+                    })
                     return true
                 }
         }
@@ -434,14 +439,13 @@ extension DDPClient {
     }
     
     
-    internal func resetUserData() {
+    public func resetUserData() {
         self.userData.set(false, forKey: DDP_LOGGED_IN)
         self.userData.removeObject(forKey: DDP_ID)
         self.userData.removeObject(forKey: DDP_EMAIL)
         self.userData.removeObject(forKey: DDP_USERNAME)
         self.userData.removeObject(forKey: DDP_TOKEN)
         self.userData.removeObject(forKey: DDP_TOKEN_EXPIRES)
-        self.userData.synchronize()
     }
     
     /**
@@ -469,10 +473,10 @@ extension DDPClient {
                             let delegate = self.delegate {
                             delegate.ddpUserDidLogout(user)
                         }
-                        self.resetUserData()
                         NotificationCenter.default.post(name: Notification.Name(rawValue: DDP_USER_DID_LOGOUT), object: nil)
                     }
                 }
+                self.resetUserData()
                 callback?(result, error)
             }
         }
