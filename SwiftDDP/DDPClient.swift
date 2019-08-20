@@ -102,7 +102,7 @@ extension DDPClient: WebSocketDelegate {
 
 extension DDPClient: WebSocketPongDelegate {
     public func websocketDidReceivePong(socket: WebSocketClient, data: Data?) {
-        heartbeat.addOperation() { self.server.pong = Date() }
+      heartbeat.addOperation() { self.server.pong = Date() }
     }
 }
 
@@ -219,7 +219,7 @@ open class DDPClient: NSObject {
         let numbers = Set<Character>(["0","1","2","3","4","5","6","7","8","9"])
         let uuid = UUID().uuidString.replacingOccurrences(of: "-", with: "")
         var id = ""
-        for character in uuid.characters {
+        for character in uuid {
             if (!numbers.contains(character) && (round(Float(arc4random()) / Float(UINT32_MAX)) == 1)) {
                 id += String(character).lowercased()
             } else {
